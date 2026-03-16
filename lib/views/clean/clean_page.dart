@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../providers/media_provider.dart';
 import '../../providers/clean_provider.dart';
 import '../../providers/config_provider.dart';
 import '../../models/media_file.dart';
 
-/// 清理页面
 class CleanPage extends StatefulWidget {
   const CleanPage({super.key});
-
   @override
   State<CleanPage> createState() => _CleanPageState();
 }
@@ -26,47 +23,25 @@ class _CleanPageState extends State<CleanPage> {
         actions: [
           if (_selectedVideoIds.isNotEmpty)
             TextButton(
-              onPressed: () {
-                setState(() {
-                  _selectedVideoIds.clear();
-                  _selectAll = false;
-                });
-              },
-              child: Text(
-                '取消选择',
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
+              onPressed: () { setState(() { _selectedVideoIds.clear(); _selectAll = false; }); },
+              child: Text('取消选择', style: TextStyle(color: Theme.of(context).colorScheme.error)),
             ),
         ],
       ),
       body: Consumer3<MediaProvider, CleanProvider, ConfigProvider>(
         builder: (context, mediaProvider, cleanProvider, configProvider, child) {
-          if (mediaProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (mediaProvider.error != null) {
-            return _buildErrorView(context, mediaProvider);
-          }
-
+          if (mediaProvider.isLoading) return const Center(child: CircularProgressIndicator());
+          if (mediaProvider.error != null) return _buildErrorView(context, mediaProvider);
           final publishedVideos = mediaProvider.getPublishedVideos();
-
-          if (publishedVideos.isEmpty) {
-            return _buildEmptyView(context);
-          }
-
-          return _buildCleanList(context, publishedVideos, configProvider.config.cleanMode);
+          if (publishedVideos.isEmpty) return _buildEmptyView(context);
+          return _buildCleanList(context, publishedVideos);
         },
       ),
       floatingActionButton: Consumer<CleanProvider>(
         builder: (context, cleanProvider, child) {
           if (cleanProvider.isCleaning) {
-            return FloatingActionButton(
-              onPressed: null,
-              child: const CircularProgressIndicator(),
-            );
+            return FloatingActionButton(onPressed: null, child: const CircularProgressIndicator());
           }
-
           return FloatingActionButton.extended(
             onPressed: _selectedVideoIds.isEmpty ? null : _startClean,
             icon: const Icon(Icons.cleaning_services),
@@ -84,25 +59,11 @@ class _CleanPageState extends State<CleanPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
+            Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
             const SizedBox(height: 16),
-            Text(
-              mediaProvider.error!,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
+            Text(mediaProvider.error!, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                mediaProvider.loadVideos();
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('重试'),
-            ),
+            ElevatedButton.icon(onPressed: () => mediaProvider.loadVideos(), icon: const Icon(Icons.refresh), label: const Text('重试')),
           ],
         ),
       ),
@@ -116,71 +77,38 @@ class _CleanPageState extends State<CleanPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.video_library_outlined,
-              size: 64,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-            ),
+            Icon(Icons.video_library_outlined, size: 64, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
             const SizedBox(height: 16),
-            Text(
-              '暂无已发布视频',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('暂无已发布视频', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            Text(
-              '请先标记已发布的视频',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Text('请先标记已发布的视频', style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.home),
-              label: const Text('返回首页'),
-            ),
+            ElevatedButton.icon(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.home), label: const Text('返回首页')),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildCleanList(
-    BuildContext context,
-    List<MediaFile> videos,
-    dynamic cleanMode,
-  ) {
+  
+  Widget _buildCleanList(BuildContext context, List<MediaFile> videos) {
     return Column(
       children: [
-        // 提示信息
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           margin: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.infoContainer,
-            borderRadius: BorderRadius.circular(12),
-          ),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer, borderRadius: BorderRadius.circular(12)),
           child: Row(
             children: [
-              Icon(
-                Icons.info_outline,
-                color: Theme.of(context).colorScheme.onInfoContainer,
-              ),
+              Icon(Icons.info_outline, color: Theme.of(context).colorScheme.onSecondaryContainer),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  '已选择 ${_selectedVideoIds.length} 个视频，清理后将移动到回收站，7 天内可恢复',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onInfoContainer,
-                  ),
-                ),
+                child: Text('已选择 ${_selectedVideoIds.length} 个视频，清理后将移动到回收站，7 天内可恢复',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSecondaryContainer)),
               ),
             ],
           ),
         ),
-
-        // 视频列表
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -188,41 +116,22 @@ class _CleanPageState extends State<CleanPage> {
             itemBuilder: (context, index) {
               final video = videos[index];
               final isSelected = _selectedVideoIds.contains(video.id);
-
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 child: CheckboxListTile(
                   value: isSelected,
                   onChanged: (value) {
                     setState(() {
-                      if (value == true) {
-                        _selectedVideoIds.add(video.id);
-                      } else {
-                        _selectedVideoIds.remove(video.id);
-                        _selectAll = false;
-                      }
+                      if (value == true) { _selectedVideoIds.add(video.id); }
+                      else { _selectedVideoIds.remove(video.id); _selectAll = false; }
                     });
                   },
-                  title: Text(
-                    video.fileName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: Text(
-                    '${video.fileSizeFormatted} · ${video.durationFormatted}',
-                  ),
+                  title: Text(video.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  subtitle: Text('${video.fileSizeFormatted} · ${video.durationFormatted}'),
                   secondary: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.video_file,
-                      size: 32,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                    width: 60, height: 60,
+                    decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                    child: Icon(Icons.video_file, size: 32, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   controlAffinity: ListTileControlAffinity.leading,
                 ),
@@ -230,34 +139,20 @@ class _CleanPageState extends State<CleanPage> {
             },
           ),
         ),
-
-        // 全选按钮
         Container(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Checkbox(
-                value: _selectAll,
-                onChanged: (value) {
-                  setState(() {
-                    _selectAll = value ?? false;
-                    if (_selectAll) {
-                      _selectedVideoIds.addAll(videos.map((v) => v.id));
-                    } else {
-                      _selectedVideoIds.clear();
-                    }
-                  });
-                },
-              ),
-              Text(
-                '全选',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
+              Checkbox(value: _selectAll, onChanged: (value) {
+                setState(() {
+                  _selectAll = value ?? false;
+                  if (_selectAll) { _selectedVideoIds.addAll(videos.map((v) => v.id)); }
+                  else { _selectedVideoIds.clear(); }
+                });
+              }),
+              Text('全选', style: Theme.of(context).textTheme.bodyLarge),
               const Spacer(),
-              Text(
-                '共 ${videos.length} 个视频',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text('共 ${videos.length} 个视频', style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),
@@ -267,53 +162,27 @@ class _CleanPageState extends State<CleanPage> {
 
   void _startClean() {
     if (_selectedVideoIds.isEmpty) return;
-
     final mediaProvider = context.read<MediaProvider>();
     final cleanProvider = context.read<CleanProvider>();
     final configProvider = context.read<ConfigProvider>();
-
-    final videosToClean = mediaProvider.videos
-        .where((v) => _selectedVideoIds.contains(v.id))
-        .toList();
+    final videosToClean = mediaProvider.videos.where((v) => _selectedVideoIds.contains(v.id)).toList();
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         title: const Text('确认清理'),
-        content: Text(
-          '确定要清理 ${videosToClean.length} 个视频吗？\n\n清理后将移动到回收站，${configProvider.config.recycleBinDays} 天内可恢复。',
-        ),
+        content: Text('确定要清理 ${videosToClean.length} 个视频吗？\n\n清理后将移动到回收站，${configProvider.config.recycleBinDays} 天内可恢复。'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('取消')),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
-              await cleanProvider.clean(
-                files: videosToClean,
-                config: configProvider.config,
-              );
-              
-              // 清理完成后重置选择
-              setState(() {
-                _selectedVideoIds.clear();
-                _selectAll = false;
-              });
-              
-              // 刷新视频列表
+              await cleanProvider.clean(files: videosToClean, config: configProvider.config);
+              setState(() { _selectedVideoIds.clear(); _selectAll = false; });
               mediaProvider.loadVideos();
-              
-              // 显示完成提示
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('清理完成'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('清理完成'), backgroundColor: Colors.green));
               }
             },
             child: const Text('确认清理'),
