@@ -15,10 +15,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v4
     
     - name: Setup Java
-      uses: actions/setup-java@v5
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
@@ -27,7 +27,7 @@ jobs:
       uses: android-actions/setup-android@v3
     
     - name: Setup Flutter
-      uses: subosito/flutter-action@v3
+      uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.16.0'
         channel: 'stable'
@@ -35,28 +35,21 @@ jobs:
     
     - name: Create Flutter Project Structure
       run: |
-        # 创建临时 Flutter 项目获取原生结构
         cd /tmp
         flutter create -t app temp_project
-        # 复制 android 和 ios 目录到项目根目录
         cp -r /tmp/temp_project/android $GITHUB_WORKSPACE/
         cp -r /tmp/temp_project/ios $GITHUB_WORKSPACE/
-        # 清理临时项目
         rm -rf /tmp/temp_project
     
     - name: Update Android Configuration
       run: |
-        # 更新 AndroidManifest.xml 添加权限
         sed -i '/<\/application>/i \
         <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>\
         <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>\
         <uses-permission android:name="android.permission.CAMERA"/>' \
         android/app/src/main/AndroidManifest.xml
         
-        # 更新应用名称
         sed -i 's/temp_project/video_cleaner/g' android/app/build.gradle
-        
-        # 更新包名
         sed -i 's/com.example.temp_project/com.videocleaner/g' android/app/build.gradle
         sed -i 's/com.example.temp_project/com.videocleaner/g' android/app/src/main/AndroidManifest.xml
     
