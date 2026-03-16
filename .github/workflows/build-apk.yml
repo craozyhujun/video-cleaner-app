@@ -33,16 +33,40 @@ jobs:
         channel: 'stable'
         cache: true
     
+    - name: Create Flutter Project Structure
+      run: |
+        # 创建临时 Flutter 项目获取原生结构
+        cd /tmp
+        flutter create -t app temp_project
+        # 复制 android 和 ios 目录到项目根目录
+        cp -r /tmp/temp_project/android $GITHUB_WORKSPACE/
+        cp -r /tmp/temp_project/ios $GITHUB_WORKSPACE/
+        # 清理临时项目
+        rm -rf /tmp/temp_project
+    
+    - name: Update Android Configuration
+      run: |
+        # 更新 AndroidManifest.xml 添加权限
+        sed -i '/<\/application>/i \
+        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>\
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>\
+        <uses-permission android:name="android.permission.CAMERA"/>' \
+        android/app/src/main/AndroidManifest.xml
+        
+        # 更新应用名称
+        sed -i 's/temp_project/video_cleaner/g' android/app/build.gradle
+        
+        # 更新包名
+        sed -i 's/com.example.temp_project/com.videocleaner/g' android/app/build.gradle
+        sed -i 's/com.example.temp_project/com.videocleaner/g' android/app/src/main/AndroidManifest.xml
+    
     - name: Install dependencies
       run: flutter pub get
-    
-    - name: Analyze code
-      run: flutter analyze || true
     
     - name: Build APK
       run: |
         flutter config --no-analytics
-        flutter build apk --release --no-tree-shake-icons
+        flutter build apk --release
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
