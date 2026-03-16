@@ -1,0 +1,55 @@
+name: video_cleaner
+description: 视频素材清理助手 - 自动清理已发布视频号的原始素材
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # 状态管理
+  provider: ^6.1.1
+  
+  # 相册访问
+  photo_manager: ^3.3.0
+  image_picker: ^1.0.7
+  
+  # 文件操作
+  path_provider: ^2.1.1
+  file: ^7.0.0
+  
+  # 本地存储
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  
+  # 通知
+  flutter_local_notifications: ^16.3.0
+  
+  # 权限
+  permission_handler: ^11.1.0
+  
+  # UI 组件
+  flutter_slidable: ^3.0.1
+  fl_chart: ^0.65.0
+  
+  # 工具
+  intl: ^0.18.1
+  share_plus: ^7.2.1
+  uuid: ^4.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/
